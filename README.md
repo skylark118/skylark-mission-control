@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mission Control
 
-## Getting Started
+Real-time dashboard for monitoring the Skylark 118 agent team (Stella, Cora, Remy, Penny).
 
-First, run the development server:
+## Features
+
+- **Real-time Activity Feed**: Live updates of agent actions via Supabase Realtime
+- **Agent Status Overview**: Monitor all agents at a glance
+- **Activity Filtering**: Filter by agent, event type, and status
+- **Dark Mode**: Built-in theme toggle
+- **Mobile Responsive**: Works on all screen sizes
+
+## Tech Stack
+
+- **Frontend**: Next.js 16 (App Router), React, TypeScript
+- **UI**: shadcn/ui, Tailwind CSS, Lucide icons
+- **Database**: Supabase (Postgres + Realtime)
+- **Deployment**: Vercel
+- **Virtualization**: @tanstack/react-virtual for performance
+
+## Setup
+
+### 1. Database Schema
+
+Run the SQL in `mission-control-schema.sql` in your Supabase SQL Editor.
+
+### 2. Environment Variables
+
+Copy `.env.local.example` to `.env.local` and fill in your values:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Get your Supabase credentials from: https://app.supabase.com/project/YOUR_PROJECT/settings/api
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Deploy to Vercel
 
-## Learn More
+```bash
+vercel --prod
+```
 
-To learn more about Next.js, take a look at the following resources:
+Set environment variables in Vercel dashboard:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `WEBHOOK_SECRET` (generate a random string)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Webhook API
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Send events to the dashboard:
 
-## Deploy on Vercel
+```bash
+curl -X POST https://your-vercel-url.vercel.app/api/events \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_WEBHOOK_SECRET" \
+  -d '{
+    "agent_id": "agent-uuid",
+    "event_type": "task_started",
+    "action": "morning_briefing",
+    "status": "completed",
+    "summary": "Generated morning briefing with 3 priorities"
+  }'
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── (dashboard)/        # Dashboard routes
+│   └── api/events/         # Webhook endpoint
+├── components/
+│   ├── ui/                 # shadcn components
+│   ├── activity/           # Activity feed components
+│   └── dashboard/          # Dashboard components
+├── lib/
+│   ├── supabase/           # Supabase clients
+│   └── hooks/              # Custom hooks
+└── types/                  # TypeScript types
+```
+
+## License
+
+MIT
