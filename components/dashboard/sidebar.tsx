@@ -1,9 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Agent } from '@/types';
-import { LayoutDashboard, Activity } from 'lucide-react';
+import { LayoutDashboard, Activity, Menu, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface SidebarProps {
   agents: Agent[];
@@ -18,9 +20,22 @@ const statusConfig = {
 
 export function Sidebar({ agents }: SidebarProps) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
-    <div className="flex h-full w-64 flex-col border-r bg-background">
+  useEffect(() => {
+    if (!mobileOpen) {
+      return;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [mobileOpen]);
+
+  const sidebarContent = (
+    <>
       <div className="flex h-16 items-center border-b px-6">
         <h1 className="text-xl font-bold">Mission Control</h1>
       </div>
@@ -28,6 +43,7 @@ export function Sidebar({ agents }: SidebarProps) {
       <nav className="flex-1 space-y-1 p-4">
         <Link
           href="/"
+          onClick={() => setMobileOpen(false)}
           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             pathname === '/'
               ? 'bg-accent text-accent-foreground'
@@ -40,6 +56,7 @@ export function Sidebar({ agents }: SidebarProps) {
 
         <Link
           href="/activity"
+          onClick={() => setMobileOpen(false)}
           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             pathname === '/activity'
               ? 'bg-accent text-accent-foreground'
@@ -75,6 +92,41 @@ export function Sidebar({ agents }: SidebarProps) {
           </div>
         </div>
       </nav>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="fixed top-4 left-4 z-50 md:hidden"
+        aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+        onClick={() => setMobileOpen((open) => !open)}
+      >
+        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </Button>
+
+      <aside className="hidden h-full w-64 flex-col border-r bg-background md:flex">
+        {sidebarContent}
+      </aside>
+
+      <div
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 md:hidden ${
+          mobileOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+        onClick={() => setMobileOpen(false)}
+        aria-hidden="true"
+      />
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-background transition-transform duration-300 ease-in-out md:hidden ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   );
 }

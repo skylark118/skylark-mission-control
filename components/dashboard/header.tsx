@@ -8,7 +8,7 @@ export function Header() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="flex h-16 items-center justify-between border-b px-6">
+    <header className="flex h-16 items-center justify-between border-b pr-4 pl-14 md:px-6">
       <div className="flex items-center gap-2">
         <h2 className="text-lg font-semibold">Dashboard</h2>
       </div>
