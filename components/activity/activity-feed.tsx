@@ -34,7 +34,8 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
   const virtualizer = useVirtualizer({
     count: filteredEvents.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 120,
+    estimateSize: () => 140,
+    measureElement: (element) => element.getBoundingClientRect().height,
     overscan: 5,
   });
 
@@ -102,6 +103,8 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
               return (
                 <div
                   key={virtualItem.key}
+                  ref={virtualizer.measureElement}
+                  className="pb-3"
                   style={{
                     position: 'absolute',
                     top: 0,
@@ -110,9 +113,7 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
                     transform: `translateY(${virtualItem.start}px)`,
                   }}
                 >
-                  <div className="pb-3">
-                    <EventCard event={event} agent={agent} />
-                  </div>
+                  <EventCard event={event} agent={agent} />
                 </div>
               );
             })}
