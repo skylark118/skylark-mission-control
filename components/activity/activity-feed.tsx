@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 import type { AgentEvent, Agent, EventStatus } from '@/types';
@@ -17,6 +17,7 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
   const events = useRealtimeEvents(initialEvents);
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<EventStatus[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
   const parentRef = useRef<HTMLDivElement>(null);
 
   const filteredEvents = useMemo(() => {
@@ -34,10 +35,33 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
   const virtualizer = useVirtualizer({
     count: filteredEvents.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 140,
+    estimateSize: () => 220,
     measureElement: (element) => element.getBoundingClientRect().height,
+    gap: 24,
     overscan: 5,
+    enabled: !isMobile,
   });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+
+    const onChange = () => {
+      setIsMobile(mediaQuery.matches);
+    };
+
+    onChange();
+    mediaQuery.addEventListener('change', onChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', onChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) {
+      virtualizer.measure();
+    }
+  }, [isMobile, filteredEvents, virtualizer]);
 
   const agentMap = useMemo(() => {
     return agents.reduce((acc, agent) => {
@@ -89,35 +113,43 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
           ref={parentRef}
           className="h-[calc(100vh-20rem)] overflow-auto p-4"
         >
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {virtualizer.getVirtualItems().map((virtualItem) => {
-              const event = filteredEvents[virtualItem.index];
-              const agent = agentMap[event.agent_id];
+          {isMobile ? (
+            <div className="space-y-6">
+              {filteredEvents.map((event) => {
+                const agent = agentMap[event.agent_id];
+                return <EventCard key={event.id} event={event} agent={agent} />;
+              })}
+            </div>
+          ) : (
+            <div
+              style={{
+                height: `${virtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const event = filteredEvents[virtualItem.index];
+                const agent = agentMap[event.agent_id];
 
-              return (
-                <div
-                  key={virtualItem.key}
-                  ref={virtualizer.measureElement}
-                  className="pb-3"
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                >
-                  <EventCard event={event} agent={agent} />
-                </div>
-              );
-            })}
-          </div>
+                return (
+                  <div
+                    key={virtualItem.key}
+                    ref={virtualizer.measureElement}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }}
+                  >
+                    <EventCard event={event} agent={agent} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
