@@ -9,9 +9,10 @@ const supabase = createClient(
 // PATCH /api/tasks/[id] - Update task status or result
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Validate Bearer token
     const authHeader = request.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
@@ -42,7 +43,7 @@ export async function PATCH(
     const { data: task, error } = await supabase
       .from('tasks')
       .update(updates)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 
