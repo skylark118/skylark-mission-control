@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Agent } from '@/types';
-import { LayoutDashboard, Activity, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Activity, CheckSquare, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SidebarProps {
@@ -65,6 +65,19 @@ export function Sidebar({ agents }: SidebarProps) {
         >
           <Activity className="h-4 w-4" />
           Activity Feed
+        </Link>
+
+        <Link
+          href="/tasks"
+          onClick={() => setMobileOpen(false)}
+          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            pathname === '/tasks'
+              ? 'bg-accent text-accent-foreground'
+              : 'hover:bg-accent hover:text-accent-foreground'
+          }`}
+        >
+          <CheckSquare className="h-4 w-4" />
+          Tasks
         </Link>
 
         <div className="pt-4">

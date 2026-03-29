@@ -1,5 +1,7 @@
 export type AgentStatus = 'active' | 'idle' | 'error' | 'offline';
 export type EventStatus = 'pending' | 'running' | 'completed' | 'failed';
+export type TaskStatus = 'pending' | 'in_progress' | 'review' | 'complete' | 'blocked';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export interface Agent {
   id: string;
@@ -29,4 +31,18 @@ export interface AgentEvent {
 
 export interface AgentWithEvents extends Agent {
   latest_event?: AgentEvent;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string | null;
+  assigned_to: string | null;
+  created_by: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  result: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 }
