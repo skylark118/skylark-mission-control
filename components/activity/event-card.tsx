@@ -1,68 +1,60 @@
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { AgentAvatar } from '@/components/agent-avatar';
 import type { AgentEvent, Agent } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface EventCardProps {
   event: AgentEvent;
   agent?: Agent;
 }
 
-const statusConfig = {
-  pending: { label: 'Pending', variant: 'secondary' as const },
-  running: { label: 'Running', variant: 'default' as const },
-  completed: { label: 'Completed', variant: 'outline' as const },
-  failed: { label: 'Failed', variant: 'destructive' as const },
-};
-
-const agentColorMap: Record<string, string> = {
-  Stella: 'border-l-blue-500',
-  Cora: 'border-l-green-500',
-  Remy: 'border-l-amber-500',
-  Penny: 'border-l-purple-500',
+const statusStyle: Record<
+  AgentEvent['status'],
+  { label: string; dot: string; text: string }
+> = {
+  pending: { label: 'Pending', dot: 'bg-muted-foreground/60', text: 'text-muted-foreground' },
+  running: { label: 'Running', dot: 'bg-skylark-blue animate-pulse', text: 'text-skylark-blue' },
+  completed: { label: 'Completed', dot: 'bg-emerald-500', text: 'text-emerald-700' },
+  failed: { label: 'Failed', dot: 'bg-red-500', text: 'text-red-600' },
 };
 
 export function EventCard({ event, agent }: EventCardProps) {
-  const statusBadge = statusConfig[event.status];
-  const borderColor = agent ? agentColorMap[agent.name] || 'border-l-gray-500' : 'border-l-gray-500';
+  const s = statusStyle[event.status];
 
   return (
-    <Card className={`border-l-4 ${borderColor}`}>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3 flex-1">
-            {agent && (
-              <span className="text-2xl">{agent.avatar_emoji}</span>
-            )}
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center gap-2">
-                {agent && (
-                  <span className="font-semibold">{agent.name}</span>
-                )}
-                <span className="text-sm text-muted-foreground">
-                  {event.event_type.replace(/_/g, ' ')}
-                </span>
-              </div>
-              <p className="font-medium">{event.action}</p>
-              {event.summary && (
-                <p className="text-sm text-muted-foreground">{event.summary}</p>
-              )}
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>
-                  {formatDistanceToNow(new Date(event.created_at), {
-                    addSuffix: true,
-                  })}
-                </span>
-                {event.duration_ms && (
-                  <span>• {(event.duration_ms / 1000).toFixed(1)}s</span>
-                )}
-              </div>
-            </div>
-          </div>
+    <article className="flex items-start gap-3 rounded-lg border bg-card px-4 py-3 transition-colors hover:border-skylark-blue/40">
+      {agent && <AgentAvatar name={agent.name} size="md" />}
 
-          <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          {agent && (
+            <span className="text-sm font-semibold text-foreground">{agent.name}</span>
+          )}
+          <span className="text-xs text-muted-foreground">
+            {event.event_type.replace(/_/g, ' ')}
+          </span>
+          <span className="text-xs text-muted-foreground">·</span>
+          <span className="text-xs text-muted-foreground">
+            {formatDistanceToNow(new Date(event.created_at), { addSuffix: true })}
+          </span>
+          {event.duration_ms != null && (
+            <span className="text-xs text-muted-foreground">
+              · {(event.duration_ms / 1000).toFixed(1)}s
+            </span>
+          )}
         </div>
-      </CardContent>
-    </Card>
+
+        <p className="mt-0.5 text-sm text-foreground">{event.action}</p>
+
+        {event.summary && (
+          <p className="mt-1 text-xs text-muted-foreground">{event.summary}</p>
+        )}
+      </div>
+
+      <div className="flex flex-none items-center gap-1.5">
+        <span className={cn('h-1.5 w-1.5 rounded-full', s.dot)} />
+        <span className={cn('text-xs font-medium', s.text)}>{s.label}</span>
+      </div>
+    </article>
   );
 }

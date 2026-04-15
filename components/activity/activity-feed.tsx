@@ -35,9 +35,9 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
   const virtualizer = useVirtualizer({
     count: filteredEvents.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 220,
+    estimateSize: () => 92,
     measureElement: (element) => element.getBoundingClientRect().height,
-    gap: 24,
+    gap: 8,
     overscan: 5,
     enabled: !isMobile,
   });
@@ -92,7 +92,7 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <ActivityFilters
         agents={agents}
         selectedAgents={selectedAgents}
@@ -102,55 +102,55 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
         onClearFilters={handleClearFilters}
       />
 
-      <div className="rounded-lg border bg-card">
-        <div className="border-b p-4">
-          <h3 className="font-semibold">
-            Activity Feed ({filteredEvents.length} events)
-          </h3>
-        </div>
+      <p className="text-xs text-muted-foreground">
+        {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'}
+      </p>
 
-        <div
-          ref={parentRef}
-          className="h-[calc(100vh-20rem)] overflow-auto p-4"
-        >
-          {isMobile ? (
-            <div className="space-y-6">
-              {filteredEvents.map((event) => {
-                const agent = agentMap[event.agent_id];
-                return <EventCard key={event.id} event={event} agent={agent} />;
-              })}
-            </div>
-          ) : (
-            <div
-              style={{
-                height: `${virtualizer.getTotalSize()}px`,
-                width: '100%',
-                position: 'relative',
-              }}
-            >
-              {virtualizer.getVirtualItems().map((virtualItem) => {
-                const event = filteredEvents[virtualItem.index];
-                const agent = agentMap[event.agent_id];
+      <div
+        ref={parentRef}
+        className="h-[calc(100vh-16rem)] overflow-auto pr-1"
+      >
+        {filteredEvents.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">
+            No events match the current filters.
+          </p>
+        ) : isMobile ? (
+          <div className="space-y-2">
+            {filteredEvents.map((event) => {
+              const agent = agentMap[event.agent_id];
+              return <EventCard key={event.id} event={event} agent={agent} />;
+            })}
+          </div>
+        ) : (
+          <div
+            style={{
+              height: `${virtualizer.getTotalSize()}px`,
+              width: '100%',
+              position: 'relative',
+            }}
+          >
+            {virtualizer.getVirtualItems().map((virtualItem) => {
+              const event = filteredEvents[virtualItem.index];
+              const agent = agentMap[event.agent_id];
 
-                return (
-                  <div
-                    key={virtualItem.key}
-                    ref={virtualizer.measureElement}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      transform: `translateY(${virtualItem.start}px)`,
-                    }}
-                  >
-                    <EventCard event={event} agent={agent} />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+              return (
+                <div
+                  key={virtualItem.key}
+                  ref={virtualizer.measureElement}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                >
+                  <EventCard event={event} agent={agent} />
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
