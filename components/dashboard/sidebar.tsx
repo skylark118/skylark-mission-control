@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import type { Agent } from '@/types';
 import { LayoutDashboard, Activity, CheckSquare, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AgentAvatar } from '@/components/agent-avatar';
 
 interface SidebarProps {
   agents: Agent[];
@@ -46,8 +47,8 @@ export function Sidebar({ agents }: SidebarProps) {
           onClick={() => setMobileOpen(false)}
           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             pathname === '/'
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent hover:text-accent-foreground'
+              ? 'bg-skylark-blue/10 text-skylark-blue'
+              : 'text-muted-foreground hover:bg-skylark-sand/20 hover:text-foreground'
           }`}
         >
           <LayoutDashboard className="h-4 w-4" />
@@ -92,7 +93,7 @@ export function Sidebar({ agents }: SidebarProps) {
                   key={agent.id}
                   className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm"
                 >
-                  <span className="text-xl">{agent.avatar_emoji}</span>
+                  <AgentAvatar name={agent.name} size="sm" />
                   <span className="flex-1">{agent.name}</span>
                   <div
                     className={`h-2 w-2 rounded-full ${config.color} ${

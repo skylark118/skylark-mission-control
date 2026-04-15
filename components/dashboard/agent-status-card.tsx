@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { Agent, AgentWithEvents } from '@/types';
+import { AgentAvatar } from '@/components/agent-avatar';
+import type { AgentWithEvents } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 
 interface AgentStatusCardProps {
@@ -24,8 +25,8 @@ export function AgentStatusCard({ agent, onClick }: AgentStatusCardProps) {
       onClick={onClick}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl">{agent.avatar_emoji}</span>
+        <div className="flex items-center gap-3">
+          <AgentAvatar name={agent.name} size="lg" />
           <div>
             <h3 className="font-semibold text-lg">{agent.name}</h3>
             <p className="text-sm text-muted-foreground">{agent.role}</p>
