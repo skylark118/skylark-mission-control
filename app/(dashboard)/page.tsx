@@ -58,6 +58,14 @@ export default async function OverviewPage() {
     }
   }
 
+  // "Active" = Working: has in_progress task OR agent_event in last 5 minutes.
+  const fiveMinutesAgo = Date.now() - 5 * 60_000;
+  const activeAgentCount = sortedAgents.filter((agent) => {
+    if (activeTaskByAgent[agent.id]) return true;
+    const latest = latestEventByAgent[agent.id];
+    return latest && new Date(latest.created_at).getTime() >= fiveMinutesAgo;
+  }).length;
+
   const agentById = agents.reduce((acc, a) => {
     acc[a.id] = a;
     return acc;
@@ -77,7 +85,8 @@ export default async function OverviewPage() {
           Stats
         </h2>
         <OverviewStats
-          agentCount={agents.length}
+          activeAgentCount={activeAgentCount}
+          totalAgentCount={agents.length}
           initialTasks={tasks}
           learningCount={learningCount}
         />

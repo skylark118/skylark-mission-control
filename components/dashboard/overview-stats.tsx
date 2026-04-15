@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Task } from '@/types';
@@ -9,18 +10,21 @@ import {
   ListTodo,
   AlertOctagon,
   Lightbulb,
+  ArrowUpRight,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OverviewStatsProps {
-  agentCount: number;
+  activeAgentCount: number;
+  totalAgentCount: number;
   initialTasks: Task[];
   learningCount: number;
 }
 
 export function OverviewStats({
-  agentCount,
+  activeAgentCount,
+  totalAgentCount,
   initialTasks,
   learningCount,
 }: OverviewStatsProps) {
@@ -66,13 +70,15 @@ export function OverviewStats({
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
+        href="/agents"
         icon={Users}
-        label="Agents"
-        value={agentCount}
-        context="On the team"
+        label="Active Agents"
+        value={activeAgentCount}
+        context={`${activeAgentCount} of ${totalAgentCount} working now`}
         tone="blue"
       />
       <StatCard
+        href="/tasks"
         icon={ListTodo}
         label="Active Tasks"
         value={counts.active}
@@ -80,6 +86,7 @@ export function OverviewStats({
         tone="blue"
       />
       <StatCard
+        href="/tasks"
         icon={AlertOctagon}
         label="Blocked"
         value={counts.blocked}
@@ -87,6 +94,7 @@ export function OverviewStats({
         tone={counts.blocked > 0 ? 'danger' : 'neutral'}
       />
       <StatCard
+        href="/memory"
         icon={Lightbulb}
         label="Learnings"
         value={learningCount}
@@ -123,12 +131,14 @@ const toneStyles: Record<Tone, { iconBg: string; iconText: string; valueText: st
 };
 
 function StatCard({
+  href,
   icon: Icon,
   label,
   value,
   context,
   tone,
 }: {
+  href: string;
   icon: LucideIcon;
   label: string;
   value: number;
@@ -137,26 +147,37 @@ function StatCard({
 }) {
   const s = toneStyles[tone];
   return (
-    <Card className="transition-shadow hover:shadow-md">
-      <CardContent className="p-5">
-        <div className="flex items-start gap-3">
-          <div
-            className={cn(
-              'flex h-9 w-9 flex-none items-center justify-center rounded-lg',
-              s.iconBg
-            )}
-          >
-            <Icon className={cn('h-4 w-4', s.iconText)} strokeWidth={1.75} />
+    <Link
+      href={href}
+      className="group block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-skylark-blue/40"
+    >
+      <Card className="h-full cursor-pointer transition-all group-hover:-translate-y-0.5 group-hover:border-skylark-blue/40 group-hover:shadow-md">
+        <CardContent className="p-5">
+          <div className="flex items-start gap-3">
+            <div
+              className={cn(
+                'flex h-9 w-9 flex-none items-center justify-center rounded-lg',
+                s.iconBg
+              )}
+            >
+              <Icon className={cn('h-4 w-4', s.iconText)} strokeWidth={1.75} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-medium text-muted-foreground">{label}</p>
+                <ArrowUpRight
+                  className="h-3.5 w-3.5 flex-none text-muted-foreground/60 transition-colors group-hover:text-skylark-blue"
+                  strokeWidth={1.75}
+                />
+              </div>
+              <p className={cn('mt-1 text-3xl font-light leading-none', s.valueText)}>
+                {value}
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">{context}</p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-muted-foreground">{label}</p>
-            <p className={cn('mt-1 text-3xl font-light leading-none', s.valueText)}>
-              {value}
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground">{context}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
