@@ -15,7 +15,7 @@ export default async function CalendarPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-4xl">Calendar</h1>
+        <h1 className="text-3xl">Calendar</h1>
         <p className="text-muted-foreground">
           Scheduled routines across the agent team — cron jobs and heartbeats.
         </p>

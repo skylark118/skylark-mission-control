@@ -74,7 +74,7 @@ export default async function OverviewPage() {
   return (
     <div className="space-y-10">
       <div className="space-y-1">
-        <h1 className="text-4xl">Mission Control</h1>
+        <h1 className="text-3xl">Mission Control</h1>
         <p className="text-muted-foreground">
           Skylark 118 · {agents.length} agents · {learningCount} shared learnings
         </p>

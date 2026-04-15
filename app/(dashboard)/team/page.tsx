@@ -66,7 +66,7 @@ export default async function TeamPage() {
   return (
     <div className="space-y-10">
       <div className="space-y-2">
-        <h1 className="text-4xl">Team</h1>
+        <h1 className="text-3xl">Team</h1>
         <p className="text-muted-foreground">
           Skylark 118 agent organization — build and run an autonomous team that
           multiplies Linda&apos;s leverage as a solo founder.

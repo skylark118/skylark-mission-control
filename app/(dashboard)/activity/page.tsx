@@ -24,7 +24,7 @@ export default async function ActivityPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-4xl">Activity Feed</h1>
+        <h1 className="text-3xl">Activity Feed</h1>
         <p className="text-muted-foreground">
           Real-time activity from all agents
         </p>
