@@ -38,7 +38,7 @@ export default async function ProjectsPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-4xl">Projects</h1>
+        <h1 className="text-3xl">Projects</h1>
         <p className="text-muted-foreground">
           {counts.total} total · {counts.active} active · {counts.paused} paused
           {counts.planning > 0 ? ` · ${counts.planning} planning` : ''}

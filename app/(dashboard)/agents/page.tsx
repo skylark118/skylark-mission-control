@@ -26,7 +26,7 @@ export default async function AgentsPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-4xl">Agents</h1>
+        <h1 className="text-3xl">Agents</h1>
         <p className="text-muted-foreground">
           Real-time operational status — what each agent is doing right now.
         </p>

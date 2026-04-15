@@ -27,7 +27,7 @@ export default async function TasksPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-4xl">Tasks</h1>
+        <h1 className="text-3xl">Tasks</h1>
         <p className="text-muted-foreground">
           Manage and track agent task assignments
         </p>
