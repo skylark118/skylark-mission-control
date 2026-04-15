@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { AgentStatusCard } from '@/components/dashboard/agent-status-card';
-import { TaskStatsCards } from '@/components/dashboard/task-stats-cards';
 import { mcClient, nexusClient } from '@/lib/supabase/clients';
-import type { Agent, AgentEvent, AgentWithEvents, Task } from '@/types';
-import { Card, CardContent } from '@/components/ui/card';
+import type { Agent, AgentEvent, Task } from '@/types';
+import { OverviewStats } from '@/components/dashboard/overview-stats';
+import { CompactAgentCard } from '@/components/dashboard/compact-agent-card';
 import { AgentAvatar } from '@/components/agent-avatar';
+import { Card, CardContent } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,7 +24,7 @@ export default async function OverviewPage() {
   ] = await Promise.all([
     mc.from('agents').select('*'),
     mc.from('tasks').select('*').order('updated_at', { ascending: false }),
-    mc.from('agent_events').select('*').order('created_at', { ascending: false }).limit(6),
+    mc.from('agent_events').select('*').order('created_at', { ascending: false }).limit(10),
     mc
       .from('tasks')
       .select('*')
@@ -40,23 +40,23 @@ export default async function OverviewPage() {
   const activeTasks = (activeTasksRes.data as Task[]) || [];
   const learningCount = learningCountRes.count ?? 0;
 
-  // Sort Stella first, then alphabetical
   const sortedAgents = agents.slice().sort((a, b) => {
     if (a.role === 'orchestrator') return -1;
     if (b.role === 'orchestrator') return 1;
     return a.name.localeCompare(b.name);
   });
 
-  // Latest event per agent for AgentStatusCard
   const latestEventByAgent: Record<string, AgentEvent> = {};
   for (const e of recentEvents) {
     if (!latestEventByAgent[e.agent_id]) latestEventByAgent[e.agent_id] = e;
   }
 
-  const agentsWithEvents: AgentWithEvents[] = sortedAgents.map((agent) => ({
-    ...agent,
-    latest_event: latestEventByAgent[agent.id],
-  }));
+  const activeTaskByAgent: Record<string, Task> = {};
+  for (const t of activeTasks) {
+    if (t.assigned_to && t.status === 'in_progress' && !activeTaskByAgent[t.assigned_to]) {
+      activeTaskByAgent[t.assigned_to] = t;
+    }
+  }
 
   const agentById = agents.reduce((acc, a) => {
     acc[a.id] = a;
@@ -68,13 +68,22 @@ export default async function OverviewPage() {
       <div className="space-y-1">
         <h1 className="text-4xl">Mission Control</h1>
         <p className="text-muted-foreground">
-          Skylark 118 · {agents.length} agents · {learningCount} shared learnings in Nexus
+          Skylark 118 · {agents.length} agents · {learningCount} shared learnings
         </p>
       </div>
 
-      <TaskStatsCards initialTasks={tasks} />
+      <section className="space-y-3">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Stats
+        </h2>
+        <OverviewStats
+          agentCount={agents.length}
+          initialTasks={tasks}
+          learningCount={learningCount}
+        />
+      </section>
 
-      <section className="space-y-4">
+      <section className="space-y-3">
         <div className="flex items-baseline justify-between">
           <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Agents
@@ -87,9 +96,14 @@ export default async function OverviewPage() {
             <ArrowUpRight className="h-3 w-3" strokeWidth={1.75} />
           </Link>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {agentsWithEvents.map((agent) => (
-            <AgentStatusCard key={agent.id} agent={agent} />
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {sortedAgents.map((agent) => (
+            <CompactAgentCard
+              key={agent.id}
+              agent={agent}
+              latestEvent={latestEventByAgent[agent.id] ?? null}
+              activeTask={activeTaskByAgent[agent.id] ?? null}
+            />
           ))}
         </div>
       </section>
