@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   ListTodo,
   Bot,
-  Radio,
   Users,
   FolderKanban,
   Brain,
@@ -36,7 +35,6 @@ const mainNav: NavItem[] = [
   { href: '/', label: 'Overview', icon: LayoutDashboard },
   { href: '/tasks', label: 'Tasks', icon: ListTodo },
   { href: '/agents', label: 'Agents', icon: Bot },
-  { href: '/activity', label: 'Activity Feed', icon: Radio },
 ];
 
 const workspaceNav: NavItem[] = [
