@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AgentAvatar } from '@/components/agent-avatar';
-import type { Agent, Milestone, Project, Task } from '@/types';
+import type { Agent, Milestone, Project, ProjectNote, Task } from '@/types';
 import { cn } from '@/lib/utils';
 import {
   ChevronDown,
@@ -11,6 +11,11 @@ import {
   ExternalLink,
   Github,
   Target,
+  FileText,
+  Lightbulb,
+  ClipboardList,
+  RotateCcw,
+  MessageSquare,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -21,8 +26,20 @@ interface ProjectDetailProps {
   milestones: Milestone[];
   tasks: Task[];
   tasksByMilestone: Record<string, Task[]>;
+  notes: ProjectNote[];
   agentMap: Record<string, Agent>;
 }
+
+const noteTypeConfig: Record<
+  ProjectNote['note_type'],
+  { label: string; icon: typeof FileText; className: string }
+> = {
+  plan: { label: 'Plan', icon: ClipboardList, className: 'bg-skylark-blue/10 text-skylark-blue border-skylark-blue/30' },
+  decision: { label: 'Decision', icon: Lightbulb, className: 'bg-skylark-orange/10 text-skylark-orange border-skylark-orange/30' },
+  note: { label: 'Note', icon: FileText, className: 'bg-skylark-sand/25 text-skylark-slate border-skylark-sand' },
+  retro: { label: 'Retro', icon: RotateCcw, className: 'bg-skylark-sky/25 text-skylark-slate border-skylark-sky' },
+  standup: { label: 'Standup', icon: MessageSquare, className: 'bg-muted text-muted-foreground border-border' },
+};
 
 const projectStatusStyle: Record<
   Project['status'],
@@ -73,6 +90,7 @@ export function ProjectDetail({
   milestones,
   tasks,
   tasksByMilestone,
+  notes,
   agentMap,
 }: ProjectDetailProps) {
   const [expanded, setExpanded] = useState(project.status === 'active');
@@ -253,9 +271,22 @@ export function ProjectDetail({
               </div>
             )}
 
-            {milestones.length === 0 && ungroupedTasks.length === 0 && (
+            {notes.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Notes
+                </h3>
+                <div className="space-y-2">
+                  {notes.map((note) => (
+                    <NoteCard key={note.id} note={note} agentMap={agentMap} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {milestones.length === 0 && ungroupedTasks.length === 0 && notes.length === 0 && (
               <p className="text-xs text-muted-foreground">
-                No milestones or tasks linked yet.
+                No milestones, tasks, or notes linked yet.
               </p>
             )}
           </div>
@@ -290,6 +321,65 @@ function TaskRow({
       <span className="flex-none text-muted-foreground">
         {formatDistanceToNow(new Date(task.updated_at), { addSuffix: true })}
       </span>
+    </div>
+  );
+}
+
+function NoteCard({
+  note,
+  agentMap,
+}: {
+  note: ProjectNote;
+  agentMap: Record<string, Agent>;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const config = noteTypeConfig[note.note_type] ?? noteTypeConfig.note;
+  const Icon = config.icon;
+  const agent = note.author_agent_id ? agentMap[note.author_agent_id] : null;
+  const isLong = note.content.length > 180;
+  const preview = isLong && !expanded ? note.content.slice(0, 180) + '…' : note.content;
+
+  return (
+    <div className="rounded-lg border bg-card p-3 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium',
+              config.className
+            )}
+          >
+            <Icon className="h-3 w-3" strokeWidth={1.75} />
+            {config.label}
+          </span>
+          {note.title && (
+            <span className="text-sm font-medium">{note.title}</span>
+          )}
+        </div>
+        <span className="flex-none text-[11px] text-muted-foreground">
+          {formatDistanceToNow(new Date(note.created_at), { addSuffix: true })}
+        </span>
+      </div>
+
+      <p className="whitespace-pre-wrap text-xs text-muted-foreground">{preview}</p>
+
+      {isLong && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="inline-flex items-center gap-1 text-[11px] font-medium text-skylark-blue hover:underline"
+        >
+          {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          {expanded ? 'Show less' : 'Show more'}
+        </button>
+      )}
+
+      {agent && (
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <AgentAvatar name={agent.name} size="sm" className="h-4 w-4 [&>svg]:h-2.5 [&>svg]:w-2.5" />
+          <span>{agent.name}</span>
+        </div>
+      )}
     </div>
   );
 }

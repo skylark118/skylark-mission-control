@@ -1,5 +1,5 @@
 import { mcClient } from '@/lib/supabase/clients';
-import type { Agent, Project, Milestone, Task } from '@/types';
+import type { Agent, Project, Milestone, Task, ProjectNote } from '@/types';
 import { ProjectCard } from '@/components/projects/project-card';
 import { ProjectDetail } from '@/components/projects/project-detail';
 
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function ProjectsPage() {
   const supabase = mcClient();
-  const [{ data: projects }, { data: agents }, { data: milestones }, { data: tasks }] =
+  const [{ data: projects }, { data: agents }, { data: milestones }, { data: tasks }, { data: notes }] =
     await Promise.all([
       supabase
         .from('projects')
@@ -25,12 +25,17 @@ export default async function ProjectsPage() {
         .select('*')
         .not('project_id', 'is', null)
         .order('updated_at', { ascending: false }),
+      supabase
+        .from('project_notes')
+        .select('*')
+        .order('created_at', { ascending: false }),
     ]);
 
   const allProjects = (projects as Project[]) || [];
   const allAgents = (agents as Agent[]) || [];
   const allMilestones = (milestones as Milestone[]) || [];
   const allTasks = (tasks as Task[]) || [];
+  const allNotes = (notes as ProjectNote[]) || [];
 
   const agentMap = allAgents.reduce((acc, a) => {
     acc[a.id] = a;
@@ -49,6 +54,11 @@ export default async function ProjectsPage() {
     if (t.milestone_id) (tasksByMilestone[t.milestone_id] ??= []).push(t);
   }
 
+  const notesByProject: Record<string, ProjectNote[]> = {};
+  for (const n of allNotes) {
+    (notesByProject[n.project_id] ??= []).push(n);
+  }
+
   return (
     <div className="space-y-8">
       {allProjects.length === 0 ? (
@@ -64,6 +74,7 @@ export default async function ProjectsPage() {
             milestones={milestonesByProject[project.id] || []}
             tasks={tasksByProject[project.id] || []}
             tasksByMilestone={tasksByMilestone}
+            notes={notesByProject[project.id] || []}
             agentMap={agentMap}
           />
         ))
