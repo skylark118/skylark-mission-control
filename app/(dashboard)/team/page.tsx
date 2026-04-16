@@ -48,9 +48,9 @@ const statusStyle: Record<
   { label: string; dot: string; pulse: boolean }
 > = {
   active: { label: 'Active', dot: 'bg-emerald-500', pulse: true },
-  idle: { label: 'Idle', dot: 'bg-skylark-blue', pulse: false },
+  idle: { label: 'Idle', dot: 'border border-skylark-blue bg-transparent', pulse: false },
   error: { label: 'Error', dot: 'bg-red-500', pulse: false },
-  offline: { label: 'Offline', dot: 'bg-muted-foreground', pulse: false },
+  offline: { label: 'Offline', dot: 'border border-muted-foreground bg-transparent', pulse: false },
 };
 
 export default async function TeamPage() {
@@ -195,7 +195,7 @@ function StatusBadge({
 }) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-      <span className={cn('h-1.5 w-1.5 rounded-full', dot, pulse && 'animate-pulse')} />
+      <span className={cn('h-2 w-2 rounded-full', dot, pulse && 'animate-pulse')} />
       {statusLabel}
     </span>
   );

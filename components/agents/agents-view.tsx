@@ -62,7 +62,7 @@ function deriveStatus(
     return {
       status: 'offline',
       label: 'Offline',
-      dot: 'bg-muted-foreground',
+      dot: 'border border-muted-foreground bg-transparent',
       pulse: false,
       badge: 'bg-muted text-muted-foreground border-border',
     };
@@ -71,7 +71,7 @@ function deriveStatus(
   return {
     status: 'idle',
     label: 'Idle',
-    dot: 'bg-skylark-blue',
+    dot: 'border border-skylark-blue bg-transparent',
     pulse: false,
     badge: 'bg-skylark-blue/10 text-skylark-blue border-skylark-blue/40',
   };
@@ -272,7 +272,7 @@ function AgentStatusCard({
               info.badge
             )}
           >
-            <span className={cn('h-1.5 w-1.5 rounded-full', info.dot, info.pulse && 'animate-pulse')} />
+            <span className={cn('h-2 w-2 rounded-full', info.dot, info.pulse && 'animate-pulse')} />
             {info.label}
           </span>
         </div>

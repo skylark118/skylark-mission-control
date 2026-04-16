@@ -42,14 +42,14 @@ function deriveStatus(
   if (heartbeatAge !== null && heartbeatAge > 120) {
     return {
       label: 'Offline',
-      dot: 'bg-muted-foreground',
+      dot: 'border border-muted-foreground bg-transparent',
       pulse: false,
       badge: 'text-muted-foreground',
     };
   }
   return {
     label: 'Idle',
-    dot: 'bg-skylark-blue',
+    dot: 'border border-skylark-blue bg-transparent',
     pulse: false,
     badge: 'text-skylark-blue',
   };
@@ -78,9 +78,9 @@ export function CompactAgentCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <h3 className="truncate text-sm font-semibold">{agent.name}</h3>
-            <span className={cn('flex items-center gap-1 text-[11px] font-medium', status.badge)}>
+            <span className={cn('flex items-center gap-1.5 text-[11px] font-medium', status.badge)}>
               <span
-                className={cn('h-1.5 w-1.5 rounded-full', status.dot, status.pulse && 'animate-pulse')}
+                className={cn('h-2 w-2 rounded-full', status.dot, status.pulse && 'animate-pulse')}
               />
               {status.label}
             </span>

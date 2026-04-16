@@ -143,6 +143,7 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
                     left: 0,
                     width: '100%',
                     transform: `translateY(${virtualItem.start}px)`,
+                    paddingBottom: 10,
                   }}
                 >
                   <EventCard event={event} agent={agent} />

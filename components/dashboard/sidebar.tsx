@@ -48,9 +48,9 @@ const workspaceNav: NavItem[] = [
 
 const statusDot: Record<Agent['status'], { color: string; pulse: boolean }> = {
   active: { color: 'bg-emerald-500', pulse: true },
-  idle: { color: 'bg-skylark-blue', pulse: false },
+  idle: { color: 'border border-skylark-blue bg-transparent', pulse: false },
   error: { color: 'bg-red-500', pulse: false },
-  offline: { color: 'bg-muted-foreground', pulse: false },
+  offline: { color: 'border border-muted-foreground bg-transparent', pulse: false },
 };
 
 function NavLink({
