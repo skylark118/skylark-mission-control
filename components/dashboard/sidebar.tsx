@@ -17,9 +17,9 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { AgentAvatar } from '@/components/agent-avatar';
-import { Crab } from '@/components/icons/crab';
 import { cn } from '@/lib/utils';
 
 interface SidebarProps {
@@ -106,11 +106,15 @@ export function Sidebar({ agents }: SidebarProps) {
 
   const content = (
     <>
-      <div className="flex h-16 items-center gap-2 border-b px-6">
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-skylark-blue/15 text-skylark-blue">
-          <Crab className="h-4 w-4" strokeWidth={1.5} />
-        </span>
-        <h1 className="text-sm font-semibold tracking-tight">Mission Control</h1>
+      <div className="flex h-16 items-center gap-2.5 border-b px-6">
+        <Image
+          src="/skylark-logo.svg"
+          alt="Skylark logo"
+          width={28}
+          height={28}
+          className="flex-none"
+        />
+        <h1 className="text-base font-semibold tracking-tight">Mission Control</h1>
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto p-4">
