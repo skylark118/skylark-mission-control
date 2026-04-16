@@ -38,13 +38,10 @@ export default async function MemoryPage() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-1">
-        <h1 className="text-3xl">Memory</h1>
-        <p className="text-muted-foreground">
-          Team knowledge base — what agents have learned, documented, and done.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <p className="text-muted-foreground">
+        Team knowledge base — what agents have learned, documented, and done.
+      </p>
 
       <MemoryView
         learnings={(learnings.data as SharedLearning[]) || []}

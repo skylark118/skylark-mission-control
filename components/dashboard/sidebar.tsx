@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AgentAvatar } from '@/components/agent-avatar';
+import { Crab } from '@/components/icons/crab';
 import { cn } from '@/lib/utils';
 
 interface SidebarProps {
@@ -107,7 +108,7 @@ export function Sidebar({ agents }: SidebarProps) {
     <>
       <div className="flex h-16 items-center gap-2 border-b px-6">
         <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-skylark-blue/15 text-skylark-blue">
-          <LayoutDashboard className="h-4 w-4" strokeWidth={1.75} />
+          <Crab className="h-4 w-4" strokeWidth={1.5} />
         </span>
         <h1 className="text-sm font-semibold tracking-tight">Mission Control</h1>
       </div>
