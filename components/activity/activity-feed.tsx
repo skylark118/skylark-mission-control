@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef } from 'react';
+import { useState, useMemo } from 'react';
 import type { AgentEvent, Agent, EventStatus } from '@/types';
 import { EventCard } from './event-card';
 import { ActivityFilters } from './activity-filters';
@@ -17,8 +15,6 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
   const events = useRealtimeEvents(initialEvents);
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<EventStatus[]>([]);
-  const [isMobile, setIsMobile] = useState(false);
-  const parentRef = useRef<HTMLDivElement>(null);
 
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
@@ -31,37 +27,6 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
       return true;
     });
   }, [events, selectedAgents, selectedStatuses]);
-
-  const virtualizer = useVirtualizer({
-    count: filteredEvents.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 92,
-    measureElement: (element) => element.getBoundingClientRect().height,
-    gap: 8,
-    overscan: 5,
-    enabled: !isMobile,
-  });
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 767px)');
-
-    const onChange = () => {
-      setIsMobile(mediaQuery.matches);
-    };
-
-    onChange();
-    mediaQuery.addEventListener('change', onChange);
-
-    return () => {
-      mediaQuery.removeEventListener('change', onChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isMobile) {
-      virtualizer.measure();
-    }
-  }, [isMobile, filteredEvents, virtualizer]);
 
   const agentMap = useMemo(() => {
     return agents.reduce((acc, agent) => {
@@ -106,53 +71,18 @@ export function ActivityFeed({ initialEvents, agents }: ActivityFeedProps) {
         {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'}
       </p>
 
-      <div
-        ref={parentRef}
-        className="h-[calc(100vh-16rem)] overflow-auto pr-1"
-      >
-        {filteredEvents.length === 0 ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">
-            No events match the current filters.
-          </p>
-        ) : isMobile ? (
-          <div className="space-y-2">
-            {filteredEvents.map((event) => {
-              const agent = agentMap[event.agent_id];
-              return <EventCard key={event.id} event={event} agent={agent} />;
-            })}
-          </div>
-        ) : (
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {virtualizer.getVirtualItems().map((virtualItem) => {
-              const event = filteredEvents[virtualItem.index];
-              const agent = agentMap[event.agent_id];
-
-              return (
-                <div
-                  key={virtualItem.key}
-                  ref={virtualizer.measureElement}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    transform: `translateY(${virtualItem.start}px)`,
-                    paddingBottom: 10,
-                  }}
-                >
-                  <EventCard event={event} agent={agent} />
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      {filteredEvents.length === 0 ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          No events match the current filters.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {filteredEvents.map((event) => {
+            const agent = agentMap[event.agent_id];
+            return <EventCard key={event.id} event={event} agent={agent} />;
+          })}
+        </div>
+      )}
     </div>
   );
 }
