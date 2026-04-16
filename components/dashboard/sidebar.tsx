@@ -108,10 +108,10 @@ export function Sidebar({ agents }: SidebarProps) {
     <>
       <div className="flex h-16 items-center gap-2.5 border-b px-6">
         <Image
-          src="/skylark-logo.svg"
+          src="/skylark-logo.png"
           alt="Skylark logo"
-          width={28}
-          height={28}
+          width={36}
+          height={36}
           className="flex-none"
         />
         <h1 className="text-base font-semibold tracking-tight">Mission Control</h1>
