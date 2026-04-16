@@ -1,37 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { mcClient } from '@/lib/supabase/clients';
+import { requireWebhookAuth } from '@/lib/webhook-auth';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const PATCHABLE_FIELDS = [
+  'status',
+  'priority',
+  'result',
+  'assigned_to',
+  'description',
+  'title',
+  'metadata',
+] as const;
 
-// PATCH /api/tasks/[id] - Update task status or result
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    // Validate Bearer token
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
-    
-    if (token !== process.env.WEBHOOK_SECRET) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const unauth = requireWebhookAuth(request);
+    if (unauth) return unauth;
 
+    const { id } = await params;
     const body = await request.json();
-    const { status, result, priority } = body;
 
     const updates: Record<string, unknown> = {};
-    
-    if (status) updates.status = status;
-    if (result !== undefined) updates.result = result;
-    if (priority) updates.priority = priority;
+    for (const field of PATCHABLE_FIELDS) {
+      if (body[field] !== undefined) updates[field] = body[field];
+    }
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json(
@@ -40,7 +35,7 @@ export async function PATCH(
       );
     }
 
-    const { data: task, error } = await supabase
+    const { data: task, error } = await mcClient()
       .from('tasks')
       .update(updates)
       .eq('id', id)
@@ -49,17 +44,11 @@ export async function PATCH(
 
     if (error) {
       console.error('Error updating task:', error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     if (!task) {
-      return NextResponse.json(
-        { error: 'Task not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
     return NextResponse.json(task);
