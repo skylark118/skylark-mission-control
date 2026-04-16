@@ -64,12 +64,7 @@ export default async function TeamPage() {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <div className="space-y-8">
-      <p className="text-muted-foreground">
-        Skylark 118 agent organization — build and run an autonomous team that
-        multiplies Linda&apos;s leverage as a solo founder.
-      </p>
-
+    <div className="space-y-10">
       {orchestrator && (
         <section className="space-y-3">
           <SectionHeader label="Orchestrator" />

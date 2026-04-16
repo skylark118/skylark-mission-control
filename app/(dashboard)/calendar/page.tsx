@@ -13,11 +13,7 @@ export default async function CalendarPage() {
   const tasks = (data as ScheduledTask[]) || [];
 
   return (
-    <div className="space-y-6">
-      <p className="text-muted-foreground">
-        Scheduled routines across the agent team — cron jobs and heartbeats.
-      </p>
-
+    <div>
       <CalendarWeekView tasks={tasks} />
     </div>
   );

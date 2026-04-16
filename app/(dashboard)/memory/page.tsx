@@ -38,11 +38,7 @@ export default async function MemoryPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <p className="text-muted-foreground">
-        Team knowledge base — what agents have learned, documented, and done.
-      </p>
-
+    <div>
       <MemoryView
         learnings={(learnings.data as SharedLearning[]) || []}
         documents={(documents.data as ClientDocument[]) || []}
