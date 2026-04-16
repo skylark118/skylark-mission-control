@@ -73,10 +73,6 @@ export default async function OverviewPage() {
 
   return (
     <div className="space-y-10">
-      <p className="text-muted-foreground">
-        Skylark 118 · {agents.length} agents · {learningCount} shared learnings
-      </p>
-
       <section className="space-y-3">
         <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Stats

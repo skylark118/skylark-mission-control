@@ -25,9 +25,7 @@ export default async function TasksPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <p className="text-muted-foreground">Manage and track agent task assignments</p>
-
+    <div>
       <TaskList initialTasks={tasks || []} agents={sortedAgents} />
     </div>
   );

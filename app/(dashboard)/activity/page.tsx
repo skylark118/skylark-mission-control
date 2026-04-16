@@ -22,9 +22,7 @@ export default async function ActivityPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <p className="text-muted-foreground">Real-time activity from all agents</p>
-
+    <div>
       <ActivityFeed initialEvents={events || []} agents={sortedAgents} />
     </div>
   );

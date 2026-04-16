@@ -24,11 +24,7 @@ export default async function AgentsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <p className="text-muted-foreground">
-        Real-time operational status — what each agent is doing right now.
-      </p>
-
+    <div>
       <AgentsView
         initialAgents={sortedAgents}
         initialEvents={(events as AgentEvent[]) || []}
