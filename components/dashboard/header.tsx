@@ -6,7 +6,6 @@ const pathLabels: Record<string, string> = {
   '/': 'Overview',
   '/tasks': 'Tasks',
   '/agents': 'Agents',
-  '/activity': 'Activity Feed',
   '/team': 'Team',
   '/projects': 'Projects',
   '/memory': 'Memory',

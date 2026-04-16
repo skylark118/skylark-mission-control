@@ -132,7 +132,7 @@ function RecentActivitySection({
           Recent Activity
         </h2>
         <Link
-          href="/activity"
+          href="/agents"
           className="inline-flex items-center gap-1 text-xs font-medium text-skylark-blue hover:underline"
         >
           View all
