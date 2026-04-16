@@ -1,32 +1,29 @@
 import { TaskList } from '@/components/tasks/task-list';
-import { createClient } from '@/lib/supabase/server';
+import { TaskStatsCards } from '@/components/dashboard/task-stats-cards';
+import { mcClient } from '@/lib/supabase/clients';
+import type { Agent, Task } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
 export default async function TasksPage() {
-  const supabase = await createClient();
+  const supabase = mcClient();
 
-  // Fetch tasks
-  const { data: tasks } = await supabase
-    .from('tasks')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const [{ data: tasks }, { data: agents }] = await Promise.all([
+    supabase.from('tasks').select('*').order('created_at', { ascending: false }),
+    supabase.from('agents').select('*').order('name'),
+  ]);
 
-  // Fetch agents (Stella first, then alphabetical)
-  const { data: agents } = await supabase
-    .from('agents')
-    .select('*')
-    .order('name');
-
-  const sortedAgents = (agents || []).slice().sort((a, b) => {
+  const allTasks = (tasks as Task[]) || [];
+  const sortedAgents = ((agents as Agent[]) || []).slice().sort((a, b) => {
     if (a.name === 'Stella') return -1;
     if (b.name === 'Stella') return 1;
     return a.name.localeCompare(b.name);
   });
 
   return (
-    <div>
-      <TaskList initialTasks={tasks || []} agents={sortedAgents} />
+    <div className="space-y-6">
+      <TaskStatsCards initialTasks={allTasks} />
+      <TaskList initialTasks={allTasks} agents={sortedAgents} />
     </div>
   );
 }
