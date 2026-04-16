@@ -67,6 +67,20 @@ export interface Milestone {
   updated_at: string;
 }
 
+export type NoteType = 'plan' | 'decision' | 'note' | 'retro' | 'standup';
+
+export interface ProjectNote {
+  id: string;
+  project_id: string;
+  milestone_id: string | null;
+  author_agent_id: string | null;
+  note_type: NoteType;
+  title: string | null;
+  content: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
 export type ProjectStatus = 'planning' | 'active' | 'paused' | 'complete';
 
 export interface Project {
