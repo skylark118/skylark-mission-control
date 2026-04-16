@@ -10,10 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AgentAvatar } from '@/components/agent-avatar';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TaskListProps {
   initialTasks: Task[];
   agents: Agent[];
+  projectNames?: Record<string, string>;
 }
 
 const statusConfig: Record<TaskStatus, { label: string; dot: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {
@@ -33,7 +35,13 @@ const priorityConfig = {
 
 const activeGroupOrder: TaskStatus[] = ['blocked', 'in_progress', 'review', 'pending'];
 
-export function TaskList({ initialTasks, agents }: TaskListProps) {
+const taskTypeStyle: Record<string, { label: string; className: string }> = {
+  project: { label: 'Project', className: 'bg-skylark-blue/10 text-skylark-blue border-skylark-blue/30' },
+  ad_hoc: { label: 'Ad hoc', className: 'bg-skylark-sand/30 text-skylark-slate border-skylark-sand' },
+  routine: { label: 'Routine', className: 'bg-skylark-sky/25 text-skylark-slate border-skylark-sky' },
+};
+
+export function TaskList({ initialTasks, agents, projectNames = {} }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [supabase] = useState(() => createClient());
   const [historyDays, setHistoryDays] = useState(7);
@@ -143,6 +151,7 @@ export function TaskList({ initialTasks, agents }: TaskListProps) {
                         key={task.id}
                         task={task}
                         agent={task.assigned_to ? agentMap[task.assigned_to] : null}
+                        projectName={task.project_id ? projectNames[task.project_id] : null}
                       />
                     ))}
                   </div>
@@ -163,6 +172,7 @@ export function TaskList({ initialTasks, agents }: TaskListProps) {
                 key={task.id}
                 task={task}
                 agent={task.assigned_to ? agentMap[task.assigned_to] : null}
+                projectName={task.project_id ? projectNames[task.project_id] : null}
               />
             ))}
           </div>
@@ -190,10 +200,11 @@ function EmptyCard({ message }: { message: string }) {
   );
 }
 
-function ActiveTaskCard({ task, agent }: { task: Task; agent: Agent | null }) {
+function ActiveTaskCard({ task, agent, projectName }: { task: Task; agent: Agent | null; projectName: string | null }) {
   const statusConf = statusConfig[task.status];
   const priorityConf = priorityConfig[task.priority];
   const isBlocked = task.status === 'blocked';
+  const typeConf = taskTypeStyle[task.task_type] ?? taskTypeStyle.ad_hoc;
 
   return (
     <Card className={isBlocked ? 'border-red-500/40' : undefined}>
@@ -208,7 +219,7 @@ function ActiveTaskCard({ task, agent }: { task: Task; agent: Agent | null }) {
             <p className="mt-1 text-sm text-muted-foreground">{task.description}</p>
           )}
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {agent && (
               <div className="flex items-center gap-1.5">
                 <AgentAvatar name={agent.name} size="sm" />
@@ -218,6 +229,12 @@ function ActiveTaskCard({ task, agent }: { task: Task; agent: Agent | null }) {
             <Badge variant="outline" className={priorityConf.className}>
               {priorityConf.label}
             </Badge>
+            <span className={cn('rounded-full border px-1.5 py-0.5 text-[10px] font-medium', typeConf.className)}>
+              {typeConf.label}
+            </span>
+            {projectName && (
+              <span className="font-medium text-skylark-blue">{projectName}</span>
+            )}
             <span>
               {formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}
             </span>
@@ -225,7 +242,7 @@ function ActiveTaskCard({ task, agent }: { task: Task; agent: Agent | null }) {
 
           {isBlocked && task.result && (
             <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/5 p-3 text-sm">
-              <p className="font-medium text-red-600 dark:text-red-400">Blocked:</p>
+              <p className="font-medium text-red-600">Blocked:</p>
               <p className="mt-1 text-muted-foreground">{task.result}</p>
             </div>
           )}
@@ -235,9 +252,10 @@ function ActiveTaskCard({ task, agent }: { task: Task; agent: Agent | null }) {
   );
 }
 
-function HistoryTaskCard({ task, agent }: { task: Task; agent: Agent | null }) {
+function HistoryTaskCard({ task, agent, projectName }: { task: Task; agent: Agent | null; projectName: string | null }) {
   const [expanded, setExpanded] = useState(false);
   const priorityConf = priorityConfig[task.priority];
+  const typeConf = taskTypeStyle[task.task_type] ?? taskTypeStyle.ad_hoc;
   const hasResult = Boolean(task.result);
 
   return (
@@ -245,21 +263,27 @@ function HistoryTaskCard({ task, agent }: { task: Task; agent: Agent | null }) {
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold truncate">{task.title}</h3>
-          <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-400">
+          <Badge variant="outline" className="border-emerald-500/40 text-emerald-600">
             Complete
           </Badge>
         </div>
 
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           {agent && (
-            <div className="flex items-center gap-1">
-              <span>{agent.avatar_emoji}</span>
+            <div className="flex items-center gap-1.5">
+              <AgentAvatar name={agent.name} size="sm" className="h-5 w-5 [&>svg]:h-3 [&>svg]:w-3" />
               <span className="font-medium text-foreground/80">{agent.name}</span>
             </div>
           )}
           <Badge variant="outline" className={priorityConf.className}>
             {priorityConf.label}
           </Badge>
+          <span className={cn('rounded-full border px-1.5 py-0.5 text-[10px] font-medium', typeConf.className)}>
+            {typeConf.label}
+          </span>
+          {projectName && (
+            <span className="font-medium text-skylark-blue">{projectName}</span>
+          )}
           <span>completed {format(new Date(task.updated_at), 'MMM d, h:mm a')}</span>
         </div>
 
