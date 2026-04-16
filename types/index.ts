@@ -33,6 +33,8 @@ export interface AgentWithEvents extends Agent {
   latest_event?: AgentEvent;
 }
 
+export type TaskType = 'project' | 'ad_hoc' | 'routine';
+
 export interface Task {
   id: string;
   title: string;
@@ -43,6 +45,24 @@ export interface Task {
   priority: TaskPriority;
   result: string | null;
   metadata: Record<string, unknown>;
+  project_id: string | null;
+  milestone_id: string | null;
+  task_type: TaskType;
+  scheduled_task_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type MilestoneStatus = 'planning' | 'active' | 'complete';
+
+export interface Milestone {
+  id: string;
+  project_id: string;
+  name: string;
+  description: string | null;
+  status: MilestoneStatus;
+  target_date: string | null;
+  sort_order: number;
   created_at: string;
   updated_at: string;
 }

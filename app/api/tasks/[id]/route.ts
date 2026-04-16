@@ -10,6 +10,10 @@ const PATCHABLE_FIELDS = [
   'description',
   'title',
   'metadata',
+  'project_id',
+  'milestone_id',
+  'task_type',
+  'scheduled_task_id',
 ] as const;
 
 export async function PATCH(
